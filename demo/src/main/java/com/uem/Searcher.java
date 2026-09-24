@@ -7,13 +7,13 @@ public class Searcher {
 
     // checks if the phrase exists in the list
     public boolean searchExactPhrase(String phrase, List<String> list) {
+
         for (String item : list) {
             if (item.equals(phrase)) {
                 return true;
-            } else {
-                return false;
             }
         }
+
         return false;
     }
 
