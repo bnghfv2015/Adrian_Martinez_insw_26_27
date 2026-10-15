@@ -1,5 +1,7 @@
 package com.uem;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 public class Article {
 
     private String nombre;
@@ -7,6 +9,11 @@ public class Article {
     private double precio;
     private double descuento;
 
+    // Constructor vacio para Jackson
+    public Article() {
+    }
+
+    // Constructor original
     public Article(String nombre, int cantidad, double precio, double descuento) {
         this.nombre = nombre;
         this.cantidad = cantidad;
@@ -18,6 +25,7 @@ public class Article {
         return nombre;
     }
 
+    @JsonAlias("name")
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -26,6 +34,7 @@ public class Article {
         return cantidad;
     }
 
+    @JsonAlias("quantity")
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
     }
@@ -34,6 +43,7 @@ public class Article {
         return precio;
     }
 
+    @JsonAlias("unitPrice")
     public void setPrecio(double precio) {
         this.precio = precio;
     }
@@ -42,6 +52,7 @@ public class Article {
         return descuento;
     }
 
+    @JsonAlias("discount")
     public void setDescuento(double descuento) {
         this.descuento = descuento;
     }

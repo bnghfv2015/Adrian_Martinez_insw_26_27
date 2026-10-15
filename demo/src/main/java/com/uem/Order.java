@@ -1,5 +1,7 @@
 package com.uem;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,11 @@ public class Order {
     private String id;
     private List<Article> articulos;
 
+    // Constructor vacio para Jackson
+    public Order() {
+    }
+
+    // Constructor original
     public Order(String id, List<Article> articulos) {
         this.id = id;
         this.articulos = articulos;
@@ -25,6 +32,7 @@ public class Order {
         return articulos;
     }
 
+    @JsonAlias("articles")
     public void setArticulos(List<Article> articulos) {
         this.articulos = articulos;
     }

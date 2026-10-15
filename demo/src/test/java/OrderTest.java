@@ -59,4 +59,16 @@ public class OrderTest {
         assertTrue(resultado.contains("Teclado"));
         assertTrue(resultado.contains("Raton"));
     }
+
+    @Test
+    public void testConstructorVacio() {
+
+        Order nuevoPedido = new Order();
+
+        nuevoPedido.setId("003");
+        nuevoPedido.setArticulos(new ArrayList<>());
+
+        assertEquals("003", nuevoPedido.getId());
+        assertTrue(nuevoPedido.getArticulos().isEmpty());
+    }
 }
