@@ -1,4 +1,4 @@
-package com.uem;
+package com.uem.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 

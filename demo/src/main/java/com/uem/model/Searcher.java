@@ -1,4 +1,4 @@
-package com.uem;
+package com.uem.model;
 
 import java.util.ArrayList;
 import java.util.List;

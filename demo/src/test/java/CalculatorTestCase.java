@@ -1,5 +1,6 @@
-import com.uem.Calculator;
 import com.uem.Main;
+import com.uem.model.Calculator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

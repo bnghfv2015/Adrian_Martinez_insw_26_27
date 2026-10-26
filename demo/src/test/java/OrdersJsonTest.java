@@ -1,6 +1,5 @@
-import com.uem.Article;
-import com.uem.Order;
-
+import com.uem.model.Article;
+import com.uem.model.Order;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

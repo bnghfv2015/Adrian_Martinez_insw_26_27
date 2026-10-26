@@ -3,14 +3,23 @@ package com.uem;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.uem.controller.OrderController;
+import com.uem.model.Calculator;
+import com.uem.model.Order;
+import com.uem.view.OrderView;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 public class Main {
+
+    // Tipo de cambio EUR -> USD
+    public static final double EUR_TO_USD_RATE = 1.162976;
 
     public static void main(String[] args) {
 
@@ -47,6 +56,12 @@ public class Main {
             // Mostrar cada pedido en el sistema de logs
             for (Order order : orders) {
                 log.debug("Loaded order: {}", order.getId());
+            }
+
+            // Initialize MVC (solo si hay pantalla, para que los tests no fallen)
+            if (!GraphicsEnvironment.isHeadless()) {
+                OrderView view = new OrderView();
+                new OrderController(view, orders);
             }
 
         } catch (IOException e) {

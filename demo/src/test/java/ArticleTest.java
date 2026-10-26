@@ -1,6 +1,7 @@
-import com.uem.Article;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.uem.model.Article;
 
 import static org.junit.jupiter.api.Assertions.*;
 
