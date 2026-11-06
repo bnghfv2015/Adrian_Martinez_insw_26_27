@@ -6,6 +6,7 @@ import com.uem.model.Article;
 import com.uem.model.Order;
 
 import java.awt.*;
+import java.net.URL;
 
 public class OrderView extends JFrame {
     private JTextField searchField = new JTextField(10);
@@ -14,6 +15,12 @@ public class OrderView extends JFrame {
 
     public OrderView() {
         setTitle("Order Management");
+
+        // Icono de la aplicacion (src/main/resources/app.png, va dentro del .jar)
+        URL iconUrl = getClass().getResource("/app.png");
+        if (iconUrl != null) {
+            setIconImage(new ImageIcon(iconUrl).getImage());
+        }
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
