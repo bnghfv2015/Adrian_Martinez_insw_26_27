@@ -48,6 +48,7 @@ jobs:
       - name: Prepare JAR
         run: |
           VERSION=${{ steps.version.outputs.version }}
+          rm -f target/original-*.jar
           mv target/*.jar target/swing-app-${VERSION}.jar
 
       - name: Create tag and release

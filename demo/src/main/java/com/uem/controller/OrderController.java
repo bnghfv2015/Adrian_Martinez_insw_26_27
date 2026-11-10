@@ -2,15 +2,17 @@ package com.uem.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uem.Main;
 import com.uem.model.Order;
 import com.uem.model.Searcher;
+import com.uem.service.ExchangeRateService;
+import com.uem.service.ExchangeRateService.ExchangeRate;
 import com.uem.view.OrderView;
 
 public class OrderController {
@@ -23,12 +25,15 @@ public class OrderController {
     List<Order> orders;
     // Atributo de clase Searcher
     Searcher searcher;
+    // Servicio externo para obtener el tipo de cambio EUR -> USD
+    ExchangeRateService exchangeRateService;
 
     public OrderController(OrderView view, List<Order> orders) {
         // Initialize attributes
         this.view = view;
         this.orders = orders;
         this.searcher = new Searcher();
+        this.exchangeRateService = new ExchangeRateService();
 
         // Adding action listener to the search button, call searchOrder on click
         this.view.getSearchButton().addActionListener(new ActionListener() {
@@ -52,7 +57,16 @@ public class OrderController {
         if (searcher.searchExactPhrase(id, ids)) {
             Order order = orders.get(ids.indexOf(id));
             log.debug("Order found: {}", id);
-            view.displayOrder(order, Main.EUR_TO_USD_RATE);
+
+            // Pedimos el tipo de cambio en el momento de mostrar el pedido
+            ExchangeRate rate = null;
+            try {
+                rate = exchangeRateService.getEurToUsd();
+            } catch (IOException e) {
+                log.error("No se pudo obtener el tipo de cambio EUR/USD", e);
+            }
+
+            view.displayOrder(order, rate);
         } else {
             log.debug("Order not found: {}", id);
             view.displayMessage("Order not found.");
