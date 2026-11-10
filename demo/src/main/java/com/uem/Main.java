@@ -18,8 +18,9 @@ import java.util.List;
 
 public class Main {
 
-    // Tipo de cambio EUR -> USD
-    public static final double EUR_TO_USD_RATE = 1.162976;
+    // El tipo de cambio EUR -> USD ya no es una constante: se obtiene en tiempo
+    // real
+    // con ExchangeRateService (ver com.uem.service.ExchangeRateService y README.md)
 
     public static void main(String[] args) {
 

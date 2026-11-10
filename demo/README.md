@@ -1,90 +1,77 @@
-# Proyecto Java Maven - [Nombre del Proyecto]
+# Order Management - Adrian Martinez (Introducción a la Ingeniería del Software 26/27 UE)
 
-Este proyecto es una plantilla base para comenzar a trabajar con aplicaciones Java utilizando Maven. Asegúrate de seguir las instrucciones para configurar tu entorno correctamente y entender cómo contribuir al proyecto.
-
-## Tabla de Contenidos
-
-- [Introducción](#introducción)
-- [Requisitos](#requisitos)
-- [Configuración del Entorno](#configuración-del-entorno)
-- [Estructura del Proyecto](#estructura-del-proyecto)
-- [Compilación y Ejecución](#compilación-y-ejecución)
-- [Contribución](#contribución)
-- [Licencia](#licencia)
-
----
-
-## Introducción
-
-Este es un proyecto base para aprender sobre el uso de **Java** y **Maven**. El objetivo familiarizarse con las buenas prácticas de desarrollo y gestionar dependencias utilizando Maven.
+Aplicación de escritorio en **Java Swing + Maven** que lee pedidos desde `orders.json` y permite buscarlos por su ID. Sigue el patrón **MVC** (modelo, vista y controlador).
 
 ## Requisitos
 
-Antes de comenzar, asegúrate de tener instalado lo siguiente en tu sistema:
-
-- **Java 8+** (JDK) - Puedes descargarlo desde [Oracle](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html) o [OpenJDK](https://openjdk.java.net/)
-- **Maven** - Puedes instalar Maven siguiendo las instrucciones en su sitio oficial: [https://maven.apache.org/install.html](https://maven.apache.org/install.html)
-- **IDE recomendada:** Visual Studio Code o cualquier editor de tu preferencia con soporte para Java.
-
-## Configuración del Entorno
-
-### 1. Instalar Java
-Asegúrate de que tienes **Java 8** o una versión superior instalada. Puedes verificarlo con el siguiente comando:
-
-```bash
-java -version
-```
-
-### 2. Instalar Maven
-Una vez que tengas Java instalado, puedes proceder con la instalación de Maven. Para verificar que Maven esté instalado correctamente, ejecuta el siguiente comando:
-
-mvn -version
-
-### 3. Configurar el IDE
-Para trabajar con este proyecto, puedes usar cualquier IDE que soporte Java, como Visual Studio Code, IntelliJ IDEA, Eclipse, etc. Si estás usando Visual Studio Code, asegúrate de instalar las siguientes extensiones:
-
-Java Extension Pack (de Microsoft)
-Maven for Java
+- **Java 17** (JDK)
+- **Maven**
+- IDE: Visual Studio Code con *Extension Pack for Java*
 
 ## Estructura del proyecto
 
 ```plaintext
-[NombreDelProyecto]/
+demo/
 ├── src/
-│   └── main/
-│       └── java/
-│           └── com/
-│               └── ejemplo/
-│                   └── App.java
-├── pom.xml
-├── target/
-└── README.md
+│   ├── main/
+│   │   ├── java/com/uem/
+│   │   │   ├── Main.java                      # Arranque: lee orders.json y crea el MVC
+│   │   │   ├── controller/OrderController.java
+│   │   │   ├── model/                         # Order, Article, Calculator, Searcher
+│   │   │   ├── service/ExchangeRateService.java  # Tipo de cambio EUR/USD (servicio externo)
+│   │   │   └── view/OrderView.java
+│   │   └── resources/
+│   │       ├── orders.json                    # Pedidos
+│   │       └── app.png                        # Icono de la aplicación
+│   └── test/java/                             # Tests JUnit 5
+└── pom.xml
 ```
 
 ## Compilación y ejecución
 
-Para compilar y ejecutar el proyecto, sigue estos pasos:
-
-Abre una terminal en la raíz del proyecto.
-
-Ejecuta el siguiente comando para compilar el proyecto:
 ```bash
-mvn clean install
-```
-Para ejecutar la aplicación, usa el siguiente comando:
-```bash
-mvn exec:java
+cd demo
+mvn clean package
+java -jar target/demo-1.1.jar
 ```
 
-## Contribución
+El `.jar` generado incluye todas las dependencias (Jackson, SLF4J), así que también se puede abrir con **doble click**.
 
-Si deseas contribuir a este proyecto, por favor sigue estos pasos:
-- Haz un fork del repositorio.
-- Crea una nueva rama (git checkout -b feature-nueva-funcionalidad).
-- Realiza tus cambios y haz commit (git commit -am 'Agregué nueva funcionalidad').
-- Empuja los cambios a tu fork (git push origin feature-nueva-funcionalidad).
-- Crea un pull request.
+## Icono de la aplicación
 
-## Licencia
+El icono está en `src/main/resources/app.png`. Al estar en `resources`, Maven lo mete dentro del `.jar`, y `OrderView` lo carga con `getClass().getResource("/app.png")` y `setIconImage(...)`. Si el fichero no existe, la app arranca igual, sin icono.
 
-Este proyecto está bajo la Licencia MIT - consulta el archivo LICENSE para más detalles.
+## Tipo de cambio EUR/USD
+
+La información del pedido muestra los totales en **euros y dólares**. El tipo de cambio varía cada día, así que **no se guarda en una constante**: se pide a un servicio externo en el momento de mostrar el pedido.
+
+**Servicio elegido: [Frankfurter](https://frankfurter.dev)**
+- Es gratuito, no necesita API key ni registro.
+- Publica los tipos de cambio de referencia del **Banco Central Europeo**, que se actualizan cada día laborable.
+
+**Petición:**
+```
+GET https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD
+```
+**Respuesta:**
+```json
+{"amount":1.0,"base":"EUR","date":"2026-11-06","rates":{"USD":1.16}}
+```
+
+**Cómo está hecho:**
+1. `ExchangeRateService` hace la petición HTTP con `java.net.http.HttpClient` (viene con Java 11+, no hace falta ninguna dependencia nueva) con un timeout de 5 segundos.
+2. Lee el JSON con **Jackson** (que ya usaba el proyecto) y saca `rates.USD` y la fecha.
+3. `OrderController` llama al servicio cada vez que se busca un pedido y le pasa el resultado a `OrderView`.
+4. `OrderView` muestra los totales en € y en $, junto al tipo de cambio usado y su fecha.
+5. **Si no hay internet o el servicio falla**, la app no se rompe: muestra los totales en euros y un aviso de que no se ha podido obtener el valor en dólares.
+
+Los tests (`ExchangeRateServiceTest`) prueban solo la lectura del JSON, para no depender de internet al compilar en GitHub Actions.
+
+## Integración continua y releases
+
+El workflow `.github/workflows/ci.yml` se ejecuta con cada push a `main`: compila con Maven, pasa los tests y, si ha cambiado la versión del `pom.xml`, crea una **release** en GitHub con el `.jar` ejecutable (`swing-app-<version>.jar`).
+
+Flujo de trabajo:
+1. Trabajar en la rama `develop`.
+2. Para una versión nueva, subir `<version>` en `pom.xml`.
+3. Pull Request de `develop` → `main` y merge. La release se genera sola.

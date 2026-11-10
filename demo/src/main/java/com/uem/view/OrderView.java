@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import com.uem.model.Article;
 import com.uem.model.Order;
+import com.uem.service.ExchangeRateService.ExchangeRate;
 
 import java.awt.*;
 import java.net.URL;
@@ -48,7 +49,11 @@ public class OrderView extends JFrame {
         return searchButton;
     }
 
-    public void displayOrder(Order order, double rate) {
+    /**
+     * Muestra el pedido con los totales en euros y, si se ha podido obtener
+     * el tipo de cambio, tambien en dolares. Si rate es null, solo euros.
+     */
+    public void displayOrder(Order order, ExchangeRate rate) {
         // Display order details in resultArea
         StringBuilder sb = new StringBuilder();
         sb.append("Order ").append(order.getId()).append(":\n");
@@ -56,23 +61,38 @@ public class OrderView extends JFrame {
         for (Article article : order.getArticulos()) {
             sb.append(article.getNombre())
                     .append(" x").append(article.getCantidad())
-                    .append(" @ ").append(article.getPrecio()).append("$")
+                    .append(" @ ").append(eur(article.getPrecio()))
                     .append(" (discount ").append(article.getDescuento()).append("%)")
-                    .append(" = ").append(article.getDiscountedAmount()).append("$\n");
+                    .append(" = ").append(eur(article.getDiscountedAmount())).append("\n");
         }
 
         double grossTotal = order.getGrossTotal();
         double discountedTotal = order.getDiscountedTotal();
 
-        sb.append("Gross total: ").append(grossTotal).append("$\n");
-        sb.append("Discounted total: ").append(discountedTotal).append("$\n");
-        sb.append("Gross total (USD): ").append(grossTotal * rate).append("$\n");
-        sb.append("Discounted total (USD): ").append(discountedTotal * rate).append("$\n");
+        sb.append("\nGross total: ").append(eur(grossTotal)).append("\n");
+        sb.append("Discounted total: ").append(eur(discountedTotal)).append("\n");
+
+        if (rate != null) {
+            sb.append("\nExchange rate EUR/USD: ").append(String.format("%.4f", rate.getRate()))
+                    .append(" (").append(rate.getDate()).append(")\n");
+            sb.append("Gross total (USD): ").append(usd(grossTotal * rate.getRate())).append("\n");
+            sb.append("Discounted total (USD): ").append(usd(discountedTotal * rate.getRate())).append("\n");
+        } else {
+            sb.append("\nUSD not available: could not get the EUR/USD exchange rate.\n");
+        }
 
         resultArea.setText(sb.toString());
     }
 
     public void displayMessage(String message) {
         resultArea.setText(message);
+    }
+
+    private String eur(double amount) {
+        return String.format("%.2f €", amount);
+    }
+
+    private String usd(double amount) {
+        return String.format("%.2f $", amount);
     }
 }
