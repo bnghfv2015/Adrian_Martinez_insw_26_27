@@ -11,11 +11,13 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.uem.model.Article;
 import com.uem.model.Order;
 import com.uem.model.Searcher;
 import com.uem.service.ExchangeRateService;
 import com.uem.service.ExchangeRateService.ExchangeRate;
 import com.uem.service.OrderRepository;
+import com.uem.view.OrderEditDialog;
 import com.uem.view.OrderFormDialog;
 import com.uem.view.OrderView;
 
@@ -54,6 +56,9 @@ public class OrderController {
 
         // Boton "New order": abre el formulario
         this.view.getNewOrderButton().addActionListener(e -> createOrder());
+
+        // Boton "Edit order": edita cantidad y descuento del pedido mostrado
+        this.view.getEditButton().addActionListener(e -> editOrder());
 
         // Boton "Delete order": borra el pedido mostrado
         this.view.getDeleteButton().addActionListener(e -> deleteOrder());
@@ -112,6 +117,52 @@ public class OrderController {
         // 3) se actualiza la pantalla y se selecciona el nuevo pedido
         refreshIdList();
         view.getIdList().setSelectedValue(newOrder.getId(), true);
+    }
+
+    /**
+     * Caso de uso: editar cantidad y descuento de los articulos del pedido
+     * mostrado.
+     */
+    private void editOrder() {
+        if (currentOrderId == null) {
+            return;
+        }
+
+        int index = getIds().indexOf(currentOrderId);
+        if (index < 0) {
+            return;
+        }
+        Order order = orders.get(index);
+
+        OrderEditDialog dialog = new OrderEditDialog(view, order);
+        List<Article> editedArticles = dialog.showDialog();
+
+        if (editedArticles == null) {
+            return; // cancelado
+        }
+
+        // 1) se cambian los articulos en memoria (guardando los antiguos por si hay que
+        // deshacer)
+        List<Article> oldArticles = order.getArticulos();
+        order.setArticulos(editedArticles);
+
+        // 2) se sobrescribe el fichero json con la lista actualizada
+        try {
+            repository.save(orders);
+        } catch (IOException e) {
+            log.error("No se pudo guardar tras editar el pedido", e);
+            order.setArticulos(oldArticles); // deshacer
+            JOptionPane.showMessageDialog(view,
+                    "The order could not be saved:\n" + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        log.debug("Order edited: {}", currentOrderId);
+
+        // 3) se vuelve a mostrar el pedido con los datos nuevos
+        view.setSearchId(currentOrderId);
+        searchOrder();
     }
 
     /** Caso de uso: borrar el pedido mostrado y guardar el json sin el. */

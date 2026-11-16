@@ -14,6 +14,7 @@ public class OrderView extends JFrame {
     private JTextField searchField = new JTextField(10);
     private JButton searchButton = new JButton("Search");
     private JButton newOrderButton = new JButton("New order");
+    private JButton editButton = new JButton("Edit order");
     private JButton deleteButton = new JButton("Delete order");
     private JTextArea resultArea = new JTextArea(10, 40);
 
@@ -48,15 +49,17 @@ public class OrderView extends JFrame {
         idScroll.setBorder(BorderFactory.createTitledBorder("Orders"));
         add(idScroll, BorderLayout.WEST);
 
-        // Centro: detalle del pedido + boton de borrado debajo
+        // Centro: detalle del pedido + botones de editar y borrar debajo
         resultArea.setEditable(false);
-        deleteButton.setEnabled(false); // se activa cuando hay un pedido mostrado
-        JPanel deletePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        deletePanel.add(deleteButton);
+        editButton.setEnabled(false); // se activan cuando hay un pedido mostrado
+        deleteButton.setEnabled(false);
+        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        actionPanel.add(editButton);
+        actionPanel.add(deleteButton);
 
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(new JScrollPane(resultArea), BorderLayout.CENTER);
-        centerPanel.add(deletePanel, BorderLayout.SOUTH);
+        centerPanel.add(actionPanel, BorderLayout.SOUTH);
         add(centerPanel, BorderLayout.CENTER);
 
         pack();
@@ -78,6 +81,10 @@ public class OrderView extends JFrame {
 
     public JButton getNewOrderButton() {
         return newOrderButton;
+    }
+
+    public JButton getEditButton() {
+        return editButton;
     }
 
     public JButton getDeleteButton() {
@@ -129,12 +136,14 @@ public class OrderView extends JFrame {
         }
 
         resultArea.setText(sb.toString());
-        deleteButton.setEnabled(true); // hay un pedido mostrado: se puede borrar
+        editButton.setEnabled(true); // hay un pedido mostrado: se puede editar y borrar
+        deleteButton.setEnabled(true);
     }
 
     public void displayMessage(String message) {
         resultArea.setText(message);
-        deleteButton.setEnabled(false); // no hay pedido mostrado
+        editButton.setEnabled(false); // no hay pedido mostrado
+        deleteButton.setEnabled(false);
     }
 
     private String eur(double amount) {
