@@ -13,6 +13,7 @@ import java.util.List;
 public class OrderView extends JFrame {
     private JTextField searchField = new JTextField(10);
     private JButton searchButton = new JButton("Search");
+    private JButton newOrderButton = new JButton("New order");
     private JTextArea resultArea = new JTextArea(10, 40);
 
     // Lista de ids de pedidos (primera pantalla)
@@ -36,6 +37,7 @@ public class OrderView extends JFrame {
         searchPanel.add(new JLabel("Order ID:"));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
+        searchPanel.add(newOrderButton);
         add(searchPanel, BorderLayout.NORTH);
 
         // Izquierda: lista de ids de pedidos
@@ -64,6 +66,10 @@ public class OrderView extends JFrame {
 
     public JButton getSearchButton() {
         return searchButton;
+    }
+
+    public JButton getNewOrderButton() {
+        return newOrderButton;
     }
 
     public JList<String> getIdList() {

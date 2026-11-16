@@ -1,6 +1,8 @@
 package com.uem.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Article {
 
@@ -21,6 +23,7 @@ public class Article {
         this.descuento = descuento;
     }
 
+    @JsonProperty("name")
     public String getNombre() {
         return nombre;
     }
@@ -30,6 +33,7 @@ public class Article {
         this.nombre = nombre;
     }
 
+    @JsonProperty("quantity")
     public int getCantidad() {
         return cantidad;
     }
@@ -39,6 +43,7 @@ public class Article {
         this.cantidad = cantidad;
     }
 
+    @JsonProperty("unitPrice")
     public double getPrecio() {
         return precio;
     }
@@ -48,6 +53,7 @@ public class Article {
         this.precio = precio;
     }
 
+    @JsonProperty("discount")
     public double getDescuento() {
         return descuento;
     }
@@ -57,11 +63,13 @@ public class Article {
         this.descuento = descuento;
     }
 
+    @JsonIgnore
     public double getGrossAmount() {
         Calculator calculator = new Calculator();
         return calculator.multiply(cantidad, precio);
     }
 
+    @JsonIgnore
     public double getDiscountedAmount() {
         Calculator calculator = new Calculator();
         return calculator.discount(getGrossAmount(), descuento);
