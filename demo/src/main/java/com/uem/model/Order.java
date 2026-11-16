@@ -1,6 +1,8 @@
 package com.uem.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,7 @@ public class Order {
         this.id = id;
     }
 
+    @JsonProperty("articles")
     public List<Article> getArticulos() {
         return articulos;
     }
@@ -37,6 +40,7 @@ public class Order {
         this.articulos = articulos;
     }
 
+    @JsonIgnore
     public double getGrossTotal() {
         Calculator calculator = new Calculator();
         List<Double> cantidades = new ArrayList<>();
@@ -48,6 +52,7 @@ public class Order {
         return calculator.calculateTotal(cantidades);
     }
 
+    @JsonIgnore
     public double getDiscountedTotal() {
         Calculator calculator = new Calculator();
         List<Double> cantidades = new ArrayList<>();
