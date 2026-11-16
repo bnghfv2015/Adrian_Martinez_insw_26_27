@@ -42,6 +42,23 @@ public class OrderController {
                 searchOrder();
             }
         });
+
+        // Mostrar en la primera pantalla la lista de ids de pedidos
+        List<String> allIds = orders.stream()
+                .map(Order::getId)
+                .collect(Collectors.toList());
+        this.view.setOrderIds(allIds);
+
+        // Al pulsar un id de la lista, se rellena el buscador y se muestra el detalle
+        this.view.getIdList().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selected = view.getIdList().getSelectedValue();
+                if (selected != null) {
+                    view.setSearchId(selected);
+                    searchOrder();
+                }
+            }
+        });
     }
 
     private void searchOrder() {

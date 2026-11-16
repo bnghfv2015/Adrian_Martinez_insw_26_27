@@ -8,11 +8,16 @@ import com.uem.service.ExchangeRateService.ExchangeRate;
 
 import java.awt.*;
 import java.net.URL;
+import java.util.List;
 
 public class OrderView extends JFrame {
     private JTextField searchField = new JTextField(10);
     private JButton searchButton = new JButton("Search");
     private JTextArea resultArea = new JTextArea(10, 40);
+
+    // Lista de ids de pedidos (primera pantalla)
+    private DefaultListModel<String> idListModel = new DefaultListModel<>();
+    private JList<String> idList = new JList<>(idListModel);
 
     public OrderView() {
         setTitle("Order Management");
@@ -24,17 +29,25 @@ public class OrderView extends JFrame {
         }
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new FlowLayout());
+        setLayout(new BorderLayout(8, 8));
 
-        // add new JLabel("Order ID:")
-        add(new JLabel("Order ID:"));
-        // add to view the search field
-        add(searchField);
-        // add to view the search button
-        add(searchButton);
-        // add to view the result area inside a JScrollPane
+        // Arriba: busqueda
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        searchPanel.add(new JLabel("Order ID:"));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+        add(searchPanel, BorderLayout.NORTH);
+
+        // Izquierda: lista de ids de pedidos
+        idList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane idScroll = new JScrollPane(idList);
+        idScroll.setPreferredSize(new Dimension(120, 200));
+        idScroll.setBorder(BorderFactory.createTitledBorder("Orders"));
+        add(idScroll, BorderLayout.WEST);
+
+        // Centro: detalle del pedido
         resultArea.setEditable(false);
-        add(new JScrollPane(resultArea));
+        add(new JScrollPane(resultArea), BorderLayout.CENTER);
 
         pack();
         setLocationRelativeTo(null);
@@ -45,8 +58,24 @@ public class OrderView extends JFrame {
         return searchField.getText().trim();
     }
 
+    public void setSearchId(String id) {
+        searchField.setText(id);
+    }
+
     public JButton getSearchButton() {
         return searchButton;
+    }
+
+    public JList<String> getIdList() {
+        return idList;
+    }
+
+    /** Rellena la lista de la izquierda con los ids de los pedidos. */
+    public void setOrderIds(List<String> ids) {
+        idListModel.clear();
+        for (String id : ids) {
+            idListModel.addElement(id);
+        }
     }
 
     /**
