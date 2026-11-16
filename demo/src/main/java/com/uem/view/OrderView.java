@@ -14,6 +14,7 @@ public class OrderView extends JFrame {
     private JTextField searchField = new JTextField(10);
     private JButton searchButton = new JButton("Search");
     private JButton newOrderButton = new JButton("New order");
+    private JButton deleteButton = new JButton("Delete order");
     private JTextArea resultArea = new JTextArea(10, 40);
 
     // Lista de ids de pedidos (primera pantalla)
@@ -47,9 +48,16 @@ public class OrderView extends JFrame {
         idScroll.setBorder(BorderFactory.createTitledBorder("Orders"));
         add(idScroll, BorderLayout.WEST);
 
-        // Centro: detalle del pedido
+        // Centro: detalle del pedido + boton de borrado debajo
         resultArea.setEditable(false);
-        add(new JScrollPane(resultArea), BorderLayout.CENTER);
+        deleteButton.setEnabled(false); // se activa cuando hay un pedido mostrado
+        JPanel deletePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        deletePanel.add(deleteButton);
+
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(new JScrollPane(resultArea), BorderLayout.CENTER);
+        centerPanel.add(deletePanel, BorderLayout.SOUTH);
+        add(centerPanel, BorderLayout.CENTER);
 
         pack();
         setLocationRelativeTo(null);
@@ -70,6 +78,10 @@ public class OrderView extends JFrame {
 
     public JButton getNewOrderButton() {
         return newOrderButton;
+    }
+
+    public JButton getDeleteButton() {
+        return deleteButton;
     }
 
     public JList<String> getIdList() {
@@ -117,10 +129,12 @@ public class OrderView extends JFrame {
         }
 
         resultArea.setText(sb.toString());
+        deleteButton.setEnabled(true); // hay un pedido mostrado: se puede borrar
     }
 
     public void displayMessage(String message) {
         resultArea.setText(message);
+        deleteButton.setEnabled(false); // no hay pedido mostrado
     }
 
     private String eur(double amount) {

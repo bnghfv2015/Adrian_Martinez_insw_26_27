@@ -33,6 +33,8 @@ public class OrderController {
     ExchangeRateService exchangeRateService;
     // Base de datos del sistema (fichero json)
     OrderRepository repository;
+    // Id del pedido que se esta mostrando ahora mismo (null si no hay ninguno)
+    String currentOrderId = null;
 
     public OrderController(OrderView view, List<Order> orders, OrderRepository repository) {
         // Initialize attributes
@@ -52,6 +54,9 @@ public class OrderController {
 
         // Boton "New order": abre el formulario
         this.view.getNewOrderButton().addActionListener(e -> createOrder());
+
+        // Boton "Delete order": borra el pedido mostrado
+        this.view.getDeleteButton().addActionListener(e -> deleteOrder());
 
         // Mostrar en la primera pantalla la lista de ids de pedidos
         refreshIdList();
@@ -109,6 +114,48 @@ public class OrderController {
         view.getIdList().setSelectedValue(newOrder.getId(), true);
     }
 
+    /** Caso de uso: borrar el pedido mostrado y guardar el json sin el. */
+    private void deleteOrder() {
+        if (currentOrderId == null) {
+            return;
+        }
+
+        int answer = JOptionPane.showConfirmDialog(view,
+                "Delete order " + currentOrderId + "?",
+                "Confirm delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (answer != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // 1) se quita de memoria (recordando su posicion por si hay que deshacer)
+        int index = getIds().indexOf(currentOrderId);
+        if (index < 0) {
+            return;
+        }
+        Order removed = orders.remove(index);
+
+        // 2) se sobrescribe el fichero json con la nueva lista
+        try {
+            repository.save(orders);
+        } catch (IOException e) {
+            log.error("No se pudo guardar tras borrar el pedido", e);
+            orders.add(index, removed); // deshacer: que memoria y fichero coincidan
+            JOptionPane.showMessageDialog(view,
+                    "The order could not be deleted:\n" + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        log.debug("Order deleted: {}", removed.getId());
+
+        // 3) se actualiza la pantalla
+        String deletedId = removed.getId();
+        currentOrderId = null;
+        refreshIdList();
+        view.setSearchId("");
+        view.displayMessage("Order " + deletedId + " deleted.");
+    }
+
     private void searchOrder() {
         String id = view.getSearchId();
         log.debug("Searching order: {}", id);
@@ -120,6 +167,7 @@ public class OrderController {
         if (searcher.searchExactPhrase(id, ids)) {
             Order order = orders.get(ids.indexOf(id));
             log.debug("Order found: {}", id);
+            currentOrderId = id;
 
             // Pedimos el tipo de cambio en el momento de mostrar el pedido
             ExchangeRate rate = null;
@@ -132,6 +180,7 @@ public class OrderController {
             view.displayOrder(order, rate);
         } else {
             log.debug("Order not found: {}", id);
+            currentOrderId = null;
             view.displayMessage("Order not found.");
         }
     }
